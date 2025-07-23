@@ -1,8 +1,8 @@
-const agenetesRepository = require('../repositories/agentesRepository');
+const agentesRepository = require('../repositories/agentesRepository');
 const { v4: uuidv4 } = require('uuid');
 
-function getAll(req, res) {
-    const agentes = agenetesRepository.findAllAll();
+function getAllAgentes(req, res) {
+    const agentes = agentesRepository.findAllAll(); // Confirme se esse método existe
     res.json(agentes);
 }
 
@@ -19,10 +19,11 @@ function createAgente(req, res) {
         patente
     };
 
-    agenetesRepository.create(novoAgente);
+    agentesRepository.create(novoAgente);
     res.status(201).json(novoAgente);
 }
 
 module.exports = {
-    getAllAgentes, createAgente
+    getAllAgentes,
+    createAgente
 };
