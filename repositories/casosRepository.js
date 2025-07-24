@@ -34,8 +34,8 @@ function remove(id) {
   return true;
 }
 
-function findByAgenteId(agente_Id) {
-  return casos.filter(caso => caso.agente_Id === agente_Id);
+function findByAgenteId(agente_id) {
+  return casos.filter(caso => caso.agente_Id === agente_id);
 }
 
 function findByStatus(status) {

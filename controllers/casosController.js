@@ -28,16 +28,16 @@ function getCasoById(req, res) {
 }
 
 function createCaso(req, res) {
-    const { titulo, descricao, status, agente_Id } = req.body;
+    const { titulo, descricao, status, agente_id } = req.body;
 
     const erros = [];
-    if (!título) erros.push({ titulo: 'Campo obrigatório' });
+    if (!titulo) erros.push({ titulo: 'Campo obrigatório' });
     if (!descricao) erros.push({ descricao: 'Campo obrigatório' });
     if (!['aberto', 'solucionando'].includes(status)) {
         erros.push({ status: 'O campo "status" deve ser "aberto" ou "solucionado"' });
     }
-    if (!agente_Id || !agentesRepository.findById(agente_Id)) {
-        erros.push({ agente_Id: 'Agente inexistente ou inválido' });
+    if (!agente_id || !agentesRepository.findById(agente_id)) {
+        erros.push({ agente_id: 'Agente inexistente ou inválido' });
     }
 
     if (erros.length > 0) {
@@ -49,7 +49,7 @@ function createCaso(req, res) {
         titulo,
         descricao,
         status,
-        agente_Id
+        agente_id
     };
 
     casosRepository.update(novoCaso);
@@ -57,7 +57,7 @@ function createCaso(req, res) {
 }
 
 function updateCaso(req, res) {
-    const { titulo, descricao, status, agente_Id } = req.body;
+    const { titulo, descricao, status, agente_id } = req.body;
     const id = req.params.id;
 
     const casoExistente = casosRepository.findById(id);
@@ -71,8 +71,8 @@ function updateCaso(req, res) {
     if (!['aberto', 'solucionando'].includes(status)) {
         erros.push({ status: 'O campo "status" deve ser "aberto" ou "solucionado"' });
     }
-    if (!agente_Id || !agentesRepository.findById(agente_Id)) {
-        erros.push({ agente_Id: 'Agente inexistente ou inválido' });
+    if (!agente_id || !agentesRepository.findById(agente_id)) {
+        erros.push({ agente_id: 'Agente inexistente ou inválido' });
     }
 
     if (erros.length > 0) {
@@ -84,7 +84,7 @@ function updateCaso(req, res) {
         titulo,
         descricao,
         status,
-        agente_Id
+        agente_id
     };
 
     casosRepository.update(id, atualizado);
@@ -107,9 +107,9 @@ function patchCaso(req, res) {
         });
     }
 
-    if (atualizacao.agente_Id && !agentesRepository.findById(atualizacao.agente_Id)) {
+    if (atualizacao.agente_id && !agentesRepository.findById(atualizacao.agente_id)) {
         return res.status(400).json({
-            status: 400, message: 'Parâmetros inválidos', errors: [{ agente_Id: 'Agente inexistente ou inválido' }]
+            status: 400, message: 'Parâmetros inválidos', errors: [{ agente_id: 'Agente inexistente ou inválido' }]
         });
     }
 
