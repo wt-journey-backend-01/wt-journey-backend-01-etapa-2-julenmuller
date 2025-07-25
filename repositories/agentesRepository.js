@@ -13,13 +13,20 @@ function create(novoAgente) {
   return novoAgente;
 }
 
-function update(id, dadosAtualizados) {
+function partialUpdate(id, dadosAtualizados) {
   const index = agentes.findIndex(agente => agente.id === id);
   if (index !== -1) {
     agentes[index] = { ...agentes[index], ...dadosAtualizados };
     return agentes[index];
   }
   return null;
+}
+
+function partialUpdate(id, campos) {
+  const agente = agentes.find(a => a.id === id);
+  if (!agente) return null;
+  Object.assign(agente, campos);
+  return agente;
 }
 
 function remove(id) {
@@ -35,5 +42,6 @@ module.exports = {
   findById,
   create,
   update,
-  remove
+  remove,
+  partialUpdate
 };
