@@ -6,8 +6,8 @@ const agentesRoutes = require('./routes/agentesRoutes');
 const casosRoutes = require('./routes/casosRoutes');
 
 app.use(express.json());
-app.use(agentesRoutes);
-app.use(casosRoutes);
+app.use('/agentes', agentesRoutes);
+app.use('/casos', casosRoutes);
 
 app.listen(PORT, () => {
   console.log(`Servidor do Departamento de Polícia rodando em http://localhost:${PORT}`);

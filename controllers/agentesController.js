@@ -2,7 +2,7 @@ const agentesRepository = require('../repositories/agentesRepository');
 const { v4: uuidv4 } = require('uuid');
 
 function getAllAgentes(req, res) {
-    const agentes = agentesRepository.findAllAll(); // Confirme se esse método existe
+    const agentes = agentesRepository.findAll();
     res.json(agentes);
 }
 
@@ -14,7 +14,7 @@ function createAgente(req, res) {
     }
 
     const novoAgente = {
-        Id: uuidv4(),
+        id: uuidv4(),
         nome,
         patente
     };

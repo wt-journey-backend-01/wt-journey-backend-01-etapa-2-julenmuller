@@ -1,36 +1,44 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 9 créditos restantes para usar o sistema de feedback AI.
+Você tem 8 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para julenmuller:
 
 Nota final: **22.8/100**
 
-# Feedback para você, julenmuller! 🚀
+# Feedback para o Julenmuller 🚓✨
 
-Olá, meu amigo(a) dev! Antes de tudo, parabéns por se dedicar a esse desafio tão importante de construir uma API REST para o Departamento de Polícia! 🎉 Eu dei uma boa olhada no seu código e quero começar destacando os pontos legais que você já conseguiu implementar, porque isso é super importante para manter a motivação, ok?
-
----
-
-## 🎉 Pontos Fortes e Conquistas Bônus
-
-- Você estruturou seu projeto com pastas separadas para **rotas**, **controllers** e **repositories**, o que é essencial para manter o código organizado e escalável.  
-- O uso do `express.Router()` nas rotas está correto, e você já conectou essas rotas no `server.js` com `app.use()`.  
-- A implementação da filtragem por palavras-chave na busca de casos (`search`) está funcionando, o que é um recurso bônus muito legal!  
-- Você já implementou alguns retornos de erros com status 400 e 404, o que mostra que você está pensando em validação e tratamento de erros.  
-- O uso do UUID para gerar IDs é uma ótima prática para garantir unicidade.
-
-Parabéns por esses avanços! 🚀 Agora vamos juntos entender o que pode ser melhorado para destravar o restante do projeto.
+Olá, Julenmuller! Que legal ver você avançando nesse desafio da API para o Departamento de Polícia! 🎉 Antes de mais nada, parabéns por implementar a estrutura básica da API e por conseguir entregar alguns filtros de busca que funcionam! Isso é um baita progresso! 👏
 
 ---
 
-## 🔍 Análise Profunda e Pontos de Melhoria
+## 🎯 O que você mandou bem
 
-### 1. **Problemas nos Repositórios de Agentes**
+- Você estruturou seu projeto com rotas, controllers e repositories, o que mostra que está entendendo bem a arquitetura modular. Isso é fundamental para projetos escaláveis.
+- Implementou os endpoints de `/agentes` e `/casos` com vários métodos HTTP, inclusive o uso do `express.Router()`.
+- Fez validações básicas nos payloads para criação e atualização, garantindo que os dados obrigatórios estejam presentes.
+- Conseguiu implementar o filtro simples de busca por keywords no título e descrição dos casos, que é um bônus importante! 🎉
+- Tratamento de erros 404 para recursos não encontrados está presente em vários endpoints, mostrando cuidado com a experiência do consumidor da API.
 
-Ao analisar o arquivo `repositories/agentesRepository.js`, percebi que ele não está implementando as funções que deveriam manipular os dados dos agentes em memória. Na verdade, o conteúdo que você colocou lá parece um código de controller, com funções que recebem `req` e `res` e fazem respostas HTTP — isso não é papel do repository!
+---
 
-Veja um trecho do seu `agentesRepository.js`:
+## 🕵️‍♂️ Onde podemos melhorar? Vamos destrinchar juntos!
+
+### 1. Erros e inconsistências nos métodos do repositório de agentes
+
+No seu arquivo `controllers/agentesController.js`, você tem esse trecho:
+
+```js
+function getAllAgentes(req, res) {
+    const agentes = agentesRepository.findAllAll(); // Confirme se esse método existe
+    res.json(agentes);
+}
+```
+
+- **Problema:** O método `findAllAll()` não existe no seu `agentesRepository`. Isso vai causar erro e impedir que a listagem de agentes funcione.
+- **Causa raiz:** No seu `repositories/agentesRepository.js`, não há implementação de métodos `findAll` ou similares, e o arquivo contém código que parece cópia do controller, não do repository.
+
+Além disso, seu arquivo `repositories/agentesRepository.js` está assim:
 
 ```js
 const agentesRepository = require('../repositories/agentesRepository');
@@ -64,13 +72,12 @@ module.exports = {
 };
 ```
 
-**Por que isso é um problema?**  
-O repository deve ser responsável apenas por armazenar, buscar, atualizar e remover dados em memória — ou seja, manipular os arrays e objetos que guardam os agentes. Ele não deve lidar com `req` e `res` nem enviar respostas HTTP. Isso é responsabilidade do controller.
+- **Problema grave:** Esse arquivo está com a lógica de controller, não de repository! Além disso, ele está importando a si mesmo (`const agentesRepository = require('../repositories/agentesRepository');`), o que causa um loop infinito e erro.
+- **Causa raiz:** Você misturou responsabilidades. O repository deve ser responsável apenas por manipular os dados em memória (arrays, CRUD dos agentes), e não por lidar com requisição e resposta HTTP.
 
-Além disso, o `agentesRepository` está chamando a si mesmo (`agentesRepository.findAll()`), o que indica um erro de recursão ou confusão na importação.
+**Como corrigir?**
 
-**O que fazer?**  
-Você deve criar um array interno para armazenar os agentes e implementar funções como:
+- No arquivo `repositories/agentesRepository.js`, você deve implementar um array para armazenar os agentes e funções como:
 
 ```js
 const agentes = [];
@@ -119,200 +126,180 @@ module.exports = {
 };
 ```
 
-Depois, no seu `agentesController.js`, você chama essas funções para manipular os dados e enviar as respostas HTTP.
-
-**Recomendo fortemente assistir:**  
-- [Arquitetura MVC com Node.js e Express](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)  
-- [Documentação oficial do Express sobre roteamento](https://expressjs.com/pt-br/guide/routing.html)
+Assim, seu controller pode chamar esses métodos para manipular os dados, e o repository fica apenas com a lógica de armazenamento.
 
 ---
 
-### 2. **IDs de Agentes e Casos não estão no formato UUID**
+### 2. Erros na criação e atualização de casos
 
-Você recebeu uma penalidade porque os IDs usados para agentes e casos não são UUIDs válidos. Observando seu código, no controller de agentes, você criou o novo agente assim:
-
-```js
-const novoAgente = {
-    Id: uuidv4(),
-    nome,
-    patente
-};
-```
-
-Note que a propriedade do ID está com a letra maiúscula `Id`, enquanto no repositório e em outros lugares você usa `id` minúsculo (ex: `casosRepository.findById(id)`).
-
-Essa inconsistência pode fazer com que as buscas por ID não funcionem, porque o campo esperado é `id` em minúsculo.
-
-**O que fazer?**  
-Padronize o nome do campo para `id` em todos os lugares:
+No `controllers/casosController.js`, achei alguns erros de digitação e lógica que podem estar quebrando seu endpoint de criação, por exemplo:
 
 ```js
-const novoAgente = {
-    id: uuidv4(),
-    nome,
-    patente
-};
-```
+function createCaso(req, res) {
+    const { titulo, descricao, status, agente_Id } = req.body;
 
-Faça o mesmo para os casos.
+    const erros = [];
+    if (!título) erros.push({ titulo: 'Campo obrigatório' });
+    if (!descricao) erros.push({ descricao: 'Campo obrigatório' });
+    if (!['aberto', 'solucionando'].includes(status)) {
+        erros.push({ status: 'O campo "status" deve ser "aberto" ou "solucionado"' });
+    }
+    if (!agente_Id || !agentesRepository.findById(agente_Id)) {
+        erros.push({ agente_Id: 'Agente inexistente ou inválido' });
+    }
 
-Além disso, verifique se em todos os lugares você está usando `id` minúsculo para acessar o identificador.
+    if (erros.length > 0) {
+        return res.status(400).json({ status: 400, message: "Parâmetros inválidos", errors: erros });
+    }
 
----
+    const novoCaso = {
+        id: uuidv4(),
+        titulo,
+        descricao,
+        status,
+        agente_Id
+    };
 
-### 3. **Endpoints de Agentes incompletos**
-
-Analisando suas rotas em `routes/agentesRoutes.js`, só vi implementação para:
-
-```js
-router.get('/agentes', agentesController.getAllAgentes);
-router.post('/agentes', agentesController.createAgente);
-```
-
-Mas o desafio pede que você implemente todos os métodos: GET por ID, PUT, PATCH e DELETE para agentes também.
-
-Isso explica porque o teste de "Buscar agente por ID" e os métodos de atualização e exclusão de agentes não funcionam.
-
-**O que fazer?**  
-Implemente as rotas faltantes:
-
-```js
-router.get('/agentes/:id', agentesController.getAgenteById);
-router.put('/agentes/:id', agentesController.updateAgente);
-router.patch('/agentes/:id', agentesController.patchAgente);
-router.delete('/agentes/:id', agentesController.deleteAgente);
-```
-
-E crie as funções correspondentes no `agentesController.js`, utilizando o repository para manipular os dados.
-
----
-
-### 4. **Erros e inconsistências no controller de casos**
-
-No seu `casosController.js`, encontrei alguns detalhes que podem estar causando erros:
-
-- Na função `createCaso`, você tem um erro de digitação: usa `título` com acento, mas no objeto novo está `titulo` sem acento. Isso pode causar `undefined` e falha na validação.
-
-```js
-const { titulo, descricao, status, agente_Id } = req.body;
-
-const erros = [];
-if (!título) erros.push({ titulo: 'Campo obrigatório' });  // 'título' não existe, deve ser 'titulo'
-```
-
-Corrija para:
-
-```js
-if (!titulo) erros.push({ titulo: 'Campo obrigatório' });
-```
-
-- Na função `createCaso`, você chama `casosRepository.update(novoCaso);`, mas para criar um novo caso você deve usar `create`, não `update`.
-
-- Na função `deleteCaso`, você faz:
-
-```js
-const caso = casosRepository.remove(id);
-if (!sucesso) {
-    return res.status(404).json({ status: 404, message: 'Caso não encontrado' });
+    casosRepository.update(novoCaso);
+    res.status(201).json(novoCaso);
 }
 ```
 
-Aqui a variável `sucesso` não foi definida. O correto é:
+- **Problema 1:** Na validação, você usou `if (!título)` — com acento no "í". Isso não corresponde à variável `titulo` declarada no `const { titulo, ... }`. Isso faz com que o campo `titulo` nunca seja validado corretamente.
+- **Problema 2:** Você está chamando `casosRepository.update(novoCaso);` para criar um novo caso. O método correto para criar é `create`, não `update`. Isso pode fazer com que o caso não seja adicionado ao array corretamente.
+
+**Correção sugerida:**
 
 ```js
-const sucesso = casosRepository.remove(id);
-if (!sucesso) {
-    return res.status(404).json({ status: 404, message: 'Caso não encontrado' });
+function createCaso(req, res) {
+    const { titulo, descricao, status, agente_Id } = req.body;
+
+    const erros = [];
+    if (!titulo) erros.push({ titulo: 'Campo obrigatório' });
+    if (!descricao) erros.push({ descricao: 'Campo obrigatório' });
+    if (!['aberto', 'solucionando'].includes(status)) {
+        erros.push({ status: 'O campo "status" deve ser "aberto" ou "solucionado"' });
+    }
+    if (!agente_Id || !agentesRepository.findById(agente_Id)) {
+        erros.push({ agente_Id: 'Agente inexistente ou inválido' });
+    }
+
+    if (erros.length > 0) {
+        return res.status(400).json({ status: 400, message: "Parâmetros inválidos", errors: erros });
+    }
+
+    const novoCaso = {
+        id: uuidv4(),
+        titulo,
+        descricao,
+        status,
+        agente_Id
+    };
+
+    casosRepository.create(novoCaso);
+    res.status(201).json(novoCaso);
 }
 ```
 
-- Na função `getAgenteResponsavel`, você busca o agente com `caso.agente_id`, mas no seu código o campo parece ser `agente_Id`. Essa diferença de nomenclatura pode causar erro.
-
 ---
 
-### 5. **Validação dos campos "status"**
+### 3. Problema no método `deleteCaso`
 
-Você está validando o campo `status` para aceitar apenas `'aberto'` ou `'solucionando'`, mas na mensagem de erro você escreve `'solucionado'` (com "do" no final). Isso pode confundir o usuário da API.
-
-Veja:
+No seu `casosController.js`, o método `deleteCaso` está assim:
 
 ```js
-if (!['aberto', 'solucionando'].includes(status)) {
-    erros.push({ status: 'O campo "status" deve ser "aberto" ou "solucionado"' });
+function deleteCaso(req, res) {
+    const id = req.params.id;
+    const caso = casosRepository.remove(id);
+    if (!sucesso) {
+        return res.status(404).json({ status: 404, message: 'Caso não encontrado' });
+    }
+    res.status(204).send();
 }
 ```
 
-A mensagem deveria refletir exatamente os valores aceitos, ou vice-versa.
+- **Problema:** Você chama `casosRepository.remove(id)` e armazena o resultado em `caso`, mas depois verifica a variável `sucesso`, que não existe no escopo. Isso gera erro e impede o funcionamento correto da deleção.
+- **Causa raiz:** Variável errada usada para checar sucesso da remoção.
 
----
+**Correção:**
 
-### 6. **Falta de implementação para métodos PUT, PATCH e DELETE dos agentes**
-
-No controller de agentes, só tem `getAllAgentes` e `createAgente`. Faltam os métodos para:
-
-- Buscar agente por ID (`getAgenteById`)
-- Atualizar agente completamente (`updateAgente`)
-- Atualizar parcialmente (`patchAgente`)
-- Deletar agente (`deleteAgente`)
-
-Sem esses, as operações básicas de CRUD para agentes não funcionam.
-
----
-
-### 7. **.gitignore não está ignorando node_modules**
-
-Você recebeu uma penalidade porque seu `.gitignore` não está ignorando a pasta `node_modules/`. Isso é importante para evitar subir arquivos pesados e desnecessários para o repositório.
-
-**O que fazer?**  
-Crie um arquivo `.gitignore` na raiz do projeto (se ainda não existir) e adicione:
-
-```
-node_modules/
+```js
+function deleteCaso(req, res) {
+    const id = req.params.id;
+    const sucesso = casosRepository.remove(id);
+    if (!sucesso) {
+        return res.status(404).json({ status: 404, message: 'Caso não encontrado' });
+    }
+    res.status(204).send();
+}
 ```
 
 ---
 
-## 📚 Recomendações de Estudo para Você
+### 4. Inconsistência nos nomes dos IDs e validação UUID
 
-- Para entender melhor a arquitetura MVC e como separar responsabilidades entre controllers e repositories:  
+- Nos seus objetos, você usa `Id`, `id`, `agente_Id`, `agente_id` de forma inconsistente. Isso pode gerar problemas ao buscar ou relacionar dados.
+- Além disso, foi detectado que os IDs usados não estão no formato UUID válido, o que é um requisito do desafio.
+
+**Dica:** Escolha um padrão para os nomes dos campos de ID e mantenha-o consistente, por exemplo:
+
+- Para agentes: `id` (tudo minúsculo)
+- Para casos: `id`
+- Para relacionar agente em caso: `agente_id`
+
+Assim, seu código fica mais legível e menos propenso a erros.
+
+---
+
+### 5. Organização do projeto e estrutura de diretórios
+
+Sua estrutura de arquivos está ok, porém o conteúdo de alguns arquivos não condiz com o esperado, especialmente o `repositories/agentesRepository.js`, que contém código de controller.
+
+Lembre-se que:
+
+- **Repositories:** armazenam e manipulam dados em memória (arrays, CRUD).
+- **Controllers:** recebem `req` e `res`, chamam os métodos do repository e retornam resposta HTTP.
+- **Routes:** definem os endpoints e associam ao controller.
+
+---
+
+## 📚 Recursos que vão te ajudar a corrigir e aprimorar tudo isso:
+
+- Para entender melhor a arquitetura MVC e organização do projeto:  
   https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
 
-- Para aprender sobre roteamento em Express e organizar suas rotas:  
-  https://expressjs.com/pt-br/guide/routing.html
-
-- Para garantir que está usando corretamente o middleware `express.json()` e manipulando requisições e respostas:  
-  https://youtu.be/--TQwiNIw28
-
-- Para entender como validar dados e retornar erros HTTP corretos (400 e 404):  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400  
-  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404
-
-- Para manipular arrays e objetos em memória de forma eficiente:  
+- Para aprender a manipular arrays e fazer CRUD em memória:  
   https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI
 
----
+- Para validar dados e enviar respostas HTTP corretas (400, 404, etc):  
+  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
 
-## 📝 Resumo dos Principais Pontos para Focar
-
-- **Corrigir o `agentesRepository.js` para manipular dados em memória, sem lidar com `req` e `res`.**
-- **Implementar todos os métodos HTTP para `/agentes` (GET por ID, PUT, PATCH, DELETE).**
-- **Padronizar o uso do campo `id` (minúsculo) para agentes e casos, garantindo que IDs sejam UUIDs válidos.**
-- **Corrigir erros de digitação e uso incorreto de funções no controller de casos (`título` vs `titulo`, usar `create` ao invés de `update` para criar).**
-- **Corrigir a variável `sucesso` na função de deletar caso.**
-- **Ajustar a validação e mensagens do campo `status` para manter consistência.**
-- **Adicionar `.gitignore` para ignorar `node_modules/`.**
+- Para entender melhor o funcionamento do Express.js e rotas:  
+  https://expressjs.com/pt-br/guide/routing.html
 
 ---
 
-## Para Finalizar... ✨
+## ✨ Resumo rápido dos principais pontos para você focar:
 
-Julenmuller, você está no caminho certo! O fato de já ter a estrutura modular e algumas funcionalidades implementadas mostra que você tem uma boa base. Agora, com esses ajustes que te indiquei, sua API vai ficar muito mais robusta e alinhada com o que o desafio pede.  
+- [ ] Corrigir o arquivo `repositories/agentesRepository.js` para conter apenas manipulação dos dados (arrays e funções CRUD), sem lógica de controller.
+- [ ] Ajustar o método `getAllAgentes` no controller para chamar `agentesRepository.findAll()` corretamente.
+- [ ] Corrigir erros de digitação e lógica no `casosController.js` (como `título` com acento e usar `create` em vez de `update` para criar casos).
+- [ ] Corrigir o método `deleteCaso` para usar a variável correta para verificar sucesso da remoção.
+- [ ] Padronizar nomes dos campos de ID (`id`, `agente_id`) em todo o projeto para evitar confusão.
+- [ ] Garantir que os IDs gerados sejam UUIDs válidos e usados corretamente.
+- [ ] Seguir fielmente a arquitetura MVC para separar responsabilidades e facilitar manutenção.
 
-Não desanime com as dificuldades, porque elas são parte do aprendizado. Continue explorando, testando e refatorando seu código. Se precisar, volte aos vídeos recomendados para reforçar conceitos. Estou aqui torcendo por você! 🙌💙
+---
 
-Bora codar e deixar essa API tinindo! 🚓👮‍♂️
+Julenmuller, você está no caminho certo, viu? 🚀 Essas correções vão destravar várias funcionalidades da sua API e deixar seu código muito mais limpo e organizado. Continue firme, revisando com calma cada ponto e testando passo a passo. Se precisar, volte aos vídeos que indiquei para consolidar o aprendizado.
 
-Abraços do seu Code Buddy! 👨‍💻✨
+Estou torcendo para ver sua API funcionando 100% em breve! Qualquer dúvida, pode chamar que a gente resolve juntos! 😉👍
+
+Boa codada! 💻👮‍♂️
+
+---
+
+Abraços do seu Code Buddy! 🤖💙
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
