@@ -33,7 +33,7 @@ function createCaso(req, res) {
     const erros = [];
     if (!titulo) erros.push({ titulo: 'Campo obrigatório' });
     if (!descricao) erros.push({ descricao: 'Campo obrigatório' });
-    if (!['aberto', 'solucionando'].includes(status)) {
+    if (!['aberto', 'solucionado'].includes(status)) {
         erros.push({ status: 'O campo "status" deve ser "aberto" ou "solucionado"' });
     }
     if (!agente_id || !agentesRepository.findById(agente_id)) {
@@ -52,7 +52,7 @@ function createCaso(req, res) {
         agente_id
     };
 
-    casosRepository.update(novoCaso);
+    casosRepository.create(novoCaso);
     res.status(201).json(novoCaso);
 }
 
@@ -68,7 +68,7 @@ function updateCaso(req, res) {
     const erros = [];
     if (!titulo) erros.push({ titulo: 'Campo obrigatório' });
     if (!descricao) erros.push({ descricao: 'Campo obrigatório' });
-    if (!['aberto', 'solucionando'].includes(status)) {
+    if (!['aberto', 'solucionado'].includes(status)) {
         erros.push({ status: 'O campo "status" deve ser "aberto" ou "solucionado"' });
     }
     if (!agente_id || !agentesRepository.findById(agente_id)) {
@@ -101,7 +101,7 @@ function patchCaso(req, res) {
 
     const atualizacao = req.body;
 
-    if (atualizacao.status && !['aberto', 'solucionando'].includes(atualizacao.status)) {
+    if (atualizacao.status && !['aberto', 'solucionado'].includes(atualizacao.status)) {
         return res.status(400).json({
             status: 400, message: 'Parâmetros inválidos', errors: [{ status: 'O campo "status" deve ser "aberto" ou "solucionado"' }]
         });
@@ -120,7 +120,7 @@ function patchCaso(req, res) {
 function deleteCaso(req, res) {
     const id = req.params.id;
     const caso = casosRepository.remove(id);
-    if (!sucesso) {
+    if (!caso) { // Corrigido: era 'sucesso', agora é 'caso'
         return res.status(404).json({ status: 404, message: 'Caso não encontrado' });
     }
     res.status(204).send();

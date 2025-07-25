@@ -1,29 +1,39 @@
-const agentesRepository = require('../repositories/agentesRepository');
-const { v4: uuidv4 } = require('uuid');
+const agentes = [];
 
-function getAllAgentes(req, res) {
-    const agentes = agentesRepository.findAll();
-    res.json(agentes);
+function findAll() {
+  return agentes;
 }
 
-function createAgente(req, res) {
-    const { nome, patente } = req.body;
+function findById(id) {
+  return agentes.find(agente => agente.id === id);
+}
 
-    if (!nome || !patente) {
-        return res.status(400).json({ error: 'Nome e patente são obrigatórios.' });
-    }
+function create(novoAgente) {
+  agentes.push(novoAgente);
+  return novoAgente;
+}
 
-    const novoAgente = {
-        Id: uuidv4(),
-        nome,
-        patente
-    };
+function update(id, dadosAtualizados) {
+  const index = agentes.findIndex(agente => agente.id === id);
+  if (index !== -1) {
+    agentes[index] = { ...agentes[index], ...dadosAtualizados };
+    return agentes[index];
+  }
+  return null;
+}
 
-    agentesRepository.create(novoAgente);
-    res.status(201).json(novoAgente);
+function remove(id) {
+  const index = agentes.findIndex(agente => agente.id === id);
+  if (index !== -1) {
+    return agentes.splice(index, 1)[0];
+  }
+  return null;
 }
 
 module.exports = {
-    getAllAgentes,
-    createAgente
+  findAll,
+  findById,
+  create,
+  update,
+  remove
 };
