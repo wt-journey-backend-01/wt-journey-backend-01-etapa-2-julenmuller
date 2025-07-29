@@ -1,22 +1,23 @@
 const casosRepository = require('../repositories/casosRepository');
 const agentesRepository = require('../repositories/agentesRepository');
 const { v4: uuidv4 } = require('uuid');
+const { isUUID } = require('validator');
 
 function getAllCasos(req, res) {
   try {
     let resultados = casosRepository.findAll();
     const { agente_id, status, q } = req.query;
 
-    if (agente_id?.trim()) {
-      resultados = resultados.filter(caso => caso.agente_id === agente_id.trim());
+    if (agente_id) {
+      resultados = resultados.filter(caso => caso.agente_id === agente_id);
     }
 
-    if (status?.trim()) {
-      resultados = resultados.filter(caso => caso.status === status.trim());
+    if (status) {
+      resultados = resultados.filter(caso => caso.status === status);
     }
 
-    if (q?.trim()) {
-      const qLower = q.trim().toLowerCase();
+    if (q) {
+      const qLower = q.toLowerCase();
       resultados = resultados.filter(caso =>
         caso.titulo.toLowerCase().includes(qLower) ||
         caso.descricao.toLowerCase().includes(qLower)
@@ -50,8 +51,13 @@ function createCaso(req, res) {
     if (!['aberto', 'solucionado'].includes(status)) {
       erros.push({ status: 'Deve ser "aberto" ou "solucionado"' });
     }
-    if (!agente_id || !agentesRepository.findById(agente_id)) {
-      erros.push({ agente_id: 'Agente inválido ou não encontrado' });
+
+    if (!agente_id) {
+      erros.push({ agente_id: 'Campo obrigatório' });
+    } else if (!isUUID(agente_id)) {
+      erros.push({ agente_id: 'Formato de UUID inválido' });
+    } else if (!agentesRepository.findById(agente_id)) {
+      erros.push({ agente_id: 'Agente não encontrado' });
     }
 
     if (erros.length) return res.status(400).json({ erros });
@@ -85,13 +91,24 @@ function updateCaso(req, res) {
     if (!['aberto', 'solucionado'].includes(status)) {
       erros.push({ status: 'Deve ser "aberto" ou "solucionado"' });
     }
-    if (!agente_id || !agentesRepository.findById(agente_id)) {
-      erros.push({ agente_id: 'Agente inválido ou não encontrado' });
+
+    if (!agente_id) {
+      erros.push({ agente_id: 'Campo obrigatório' });
+    } else if (!isUUID(agente_id)) {
+      erros.push({ agente_id: 'Formato de UUID inválido' });
+    } else if (!agentesRepository.findById(agente_id)) {
+      erros.push({ agente_id: 'Agente não encontrado' });
     }
 
     if (erros.length) return res.status(400).json({ erros });
 
-    const atualizado = casosRepository.update(id, { titulo, descricao, status, agente_id });
+    const atualizado = casosRepository.update(id, {
+      titulo,
+      descricao,
+      status,
+      agente_id
+    });
+
     res.json(atualizado);
   } catch (err) {
     res.status(500).json({ message: 'Erro interno do servidor' });
@@ -106,8 +123,14 @@ function patchCaso(req, res) {
     const casoExistente = casosRepository.findById(id);
     if (!casoExistente) return res.status(404).json({ message: 'Caso não encontrado' });
 
-    if (atualizacao.agente_id && !agentesRepository.findById(atualizacao.agente_id)) {
-      return res.status(400).json({ message: 'Agente inválido' });
+    if (atualizacao.agente_id) {
+      if (!isUUID(atualizacao.agente_id)) {
+        return res.status(400).json({ message: 'Formato de UUID inválido' });
+      }
+
+      if (!agentesRepository.findById(atualizacao.agente_id)) {
+        return res.status(400).json({ message: 'Agente não encontrado' });
+      }
     }
 
     const atualizado = casosRepository.partialUpdate(id, atualizacao);

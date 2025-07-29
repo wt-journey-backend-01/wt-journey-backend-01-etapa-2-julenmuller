@@ -20,6 +20,7 @@
   "homepage": "https://github.com/wt-journey-backend-01/wt-journey-backend-01-etapa-2-julenmuller#readme",
   "dependencies": {
     "express": "^5.1.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "validator": "^13.15.15"
   }
 }

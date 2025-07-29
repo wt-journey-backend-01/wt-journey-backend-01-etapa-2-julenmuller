@@ -5,39 +5,36 @@ function findAll() {
 }
 
 function findById(id) {
-  return agentes.find(agente => agente.id === id);
+  return agentes.find(a => a.id === id);
 }
 
-function create(novoAgente) {
-  agentes.push(novoAgente);
-  return novoAgente;
-}
-
-function update(id, dadosAtualizados) {
-  const index = agentes.findIndex(agente => agente.id === id);
-  if (index !== -1) {
-    const { id: _, ...resto } = dadosAtualizados;
-    agentes[index] = { ...agentes[index], ...resto };
-    return agentes[index];
-  }
-  return null;
-}
-
-function partialUpdate(id, campos) {
-  const agente = agentes.find(a => a.id === id);
-  if (!agente) return null;
-  
-  const { id: _, ...resto } = campos; 
-  Object.assign(agente, resto);
+function create(agente) {
+  agentes.push(agente);
   return agente;
 }
 
+function update(id, novosDados) {
+  const index = agentes.findIndex(a => a.id === id);
+  if (index === -1) return null;
+
+  agentes[index] = { id, ...novosDados };
+  return agentes[index];
+}
+
+function partialUpdate(id, atualizacao) {
+  const index = agentes.findIndex(a => a.id === id);
+  if (index === -1) return null;
+
+  agentes[index] = { ...agentes[index], ...atualizacao };
+  return agentes[index];
+}
+
 function remove(id) {
-  const index = agentes.findIndex(agente => agente.id === id);
-  if (index !== -1) {
-    return agentes.splice(index, 1)[0];
-  }
-  return null;
+  const index = agentes.findIndex(a => a.id === id);
+  if (index === -1) return false;
+
+  agentes.splice(index, 1);
+  return true;
 }
 
 module.exports = {
@@ -45,6 +42,6 @@ module.exports = {
   findById,
   create,
   update,
-  remove,
-  partialUpdate
+  partialUpdate,
+  remove
 };

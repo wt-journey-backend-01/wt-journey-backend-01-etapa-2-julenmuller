@@ -2,7 +2,15 @@ const agentesRepository = require('../repositories/agentesRepository');
 const { v4: uuidv4 } = require('uuid');
 
 function getAllAgentes(_req, res) {
-    const agentes = agentesRepository.findAll();
+    let agentes = agentesRepository.findAll();
+    const { sort } = req.query;
+
+    if (sort === 'asc') {
+        agentes = agentes.sort((a, b) => new Date(a.data_incorporacao) - new Date(b.data_incorporacao));
+    } else if (sort === 'desc') {
+        agentes = agentes.sort((a, b) => new Date(b.data_incorporacao) - new Date(a.data_incorporacao));
+    }
+
     res.json(agentes);
 }
 
