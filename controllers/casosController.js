@@ -2,6 +2,9 @@ const casosRepository = require('../repositories/casosRepository');
 const agentesRepository = require('../repositories/agentesRepository');
 const { v4: uuidv4 } = require('uuid');
 const { isUUID } = require('validator');
+const { validarUUID } = require('../utils/validacoes');
+const erroUUID = validarUUID(req.params.id);
+if (erroUUID) return res.status(400).json({ erros: [erroUUID] });
 
 function getAllCasos(req, res) {
   try {

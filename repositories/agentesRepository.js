@@ -25,7 +25,8 @@ function partialUpdate(id, atualizacao) {
   const index = agentes.findIndex(a => a.id === id);
   if (index === -1) return null;
 
-  agentes[index] = { ...agentes[index], ...atualizacao };
+  const { id: _, ...dadosSemId } = atualizacao;
+  agentes[index] = { ...agentes[index], ...dadosSemId };
   return agentes[index];
 }
 

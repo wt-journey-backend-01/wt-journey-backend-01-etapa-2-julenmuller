@@ -25,7 +25,8 @@ function partialUpdate(id, atualizacao) {
   const index = casos.findIndex(c => c.id === id);
   if (index === -1) return null;
 
-  casos[index] = { ...casos[index], ...atualizacao };
+  const { id: _, ...dadosSemId } = atualizacao;
+  casos[index] = { ...casos[index], ...dadosSemId };
   return casos[index];
 }
 
