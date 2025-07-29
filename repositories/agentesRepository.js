@@ -13,10 +13,10 @@ function create(novoAgente) {
   return novoAgente;
 }
 
-function partialUpdate(id, dadosAtualizados) {
+function update(id, dadosAtualizados) {
   const index = agentes.findIndex(agente => agente.id === id);
   if (index !== -1) {
-    agentes[index] = { ...agentes[index], ...dadosAtualizados };
+    agentes[index] = { id, ...dadosAtualizados };
     return agentes[index];
   }
   return null;
