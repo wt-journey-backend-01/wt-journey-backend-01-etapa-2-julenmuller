@@ -16,7 +16,8 @@ function create(novoAgente) {
 function update(id, dadosAtualizados) {
   const index = agentes.findIndex(agente => agente.id === id);
   if (index !== -1) {
-    agentes[index] = { id, ...dadosAtualizados };
+    const { id: _, ...resto } = dadosAtualizados;
+    agentes[index] = { ...agentes[index], ...resto };
     return agentes[index];
   }
   return null;
@@ -25,7 +26,9 @@ function update(id, dadosAtualizados) {
 function partialUpdate(id, campos) {
   const agente = agentes.find(a => a.id === id);
   if (!agente) return null;
-  Object.assign(agente, campos);
+  
+  const { id: _, ...resto } = campos; 
+  Object.assign(agente, resto);
   return agente;
 }
 
