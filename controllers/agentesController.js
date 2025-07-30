@@ -1,9 +1,14 @@
 const agentesRepository = require('../repositories/agentesRepository');
 const { v4: uuidv4 } = require('uuid');
 
-function getAllAgentes(_req, res) {
+function getAllAgentes(req, res) {
     let agentes = agentesRepository.findAll();
-    const { sort } = req.query;
+    const { sort, desde } = req.query;
+
+    if (desde) {
+        const dataMinima = new Date(desde);
+        agentes = agentes.filter(a => new Date(a.data_incorporacao) >= dataMinima);
+    }
 
     if (sort === 'asc') {
         agentes = agentes.sort((a, b) => new Date(a.data_incorporacao) - new Date(b.data_incorporacao));
@@ -24,7 +29,8 @@ function createAgente(req, res) {
     const novoAgente = {
         id: uuidv4(),
         nome,
-        patente
+        patente,
+        data_incorporacao: new Date().toISOString()
     };
 
     agentesRepository.create(novoAgente);

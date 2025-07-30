@@ -3,7 +3,6 @@ const router = express.Router();
 const casosController = require('../controllers/casosController');
 
 router.get('/', casosController.getAllCasosComFiltro);
-
 router.post('/', casosController.createCaso);
 router.get('/:caso_id/agente', casosController.getAgenteResponsavel);
 router.get('/:id', casosController.getCasoById);

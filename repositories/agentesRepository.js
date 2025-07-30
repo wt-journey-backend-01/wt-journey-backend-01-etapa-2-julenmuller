@@ -17,7 +17,7 @@ function update(id, novosDados) {
   const index = agentes.findIndex(a => a.id === id);
   if (index === -1) return null;
 
-  agentes[index] = { id, ...novosDados };
+  agentes[index] = { ...agentes[index], ...novosDados };
   return agentes[index];
 }
 
