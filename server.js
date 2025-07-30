@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
-const errorHandler = require('./utils/errorHandler');
+const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
 const agentesRoutes = require('./routes/agentesRoutes');
 const casosRoutes = require('./routes/casosRoutes');
