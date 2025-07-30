@@ -16,9 +16,10 @@ function create(caso) {
 function update(id, novoCaso) {
   const index = casos.findIndex(c => c.id === id);
   if (index === -1) return null;
-
-  casos[index] = { ...casos[index], ...novoCaso, id };
-  return novoCaso;
+  
+  const { id: _, ...dadosSemId } = novoCaso;
+  casos[index] = { ...casos[index], ...dadosSemId };
+  return casos[index];
 }
 
 function partialUpdate(id, atualizacao) {

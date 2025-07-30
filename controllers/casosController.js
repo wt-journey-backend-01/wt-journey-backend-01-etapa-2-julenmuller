@@ -2,10 +2,6 @@ const casosRepository = require('../repositories/casosRepository');
 const agentesRepository = require('../repositories/agentesRepository');
 const { v4: uuidv4 } = require('uuid');
 const { isUUID } = require('validator');
-const { validarUUID } = require('../utils/validacoes');
-const erroUUID = validarUUID(req.params.id);
-if (erroUUID) return res.status(400).json({ erros: [erroUUID] });
-
 
 function getAllCasos(req, res) {
   try {
@@ -37,8 +33,14 @@ function getAllCasos(req, res) {
 
 function getCasoById(req, res) {
   try {
-    const caso = casosRepository.findById(req.params.id);
+    const { id } = req.params;
+    if (!isUUID(id)) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+
+    const caso = casosRepository.findById(id);
     if (!caso) return res.status(404).json({ message: 'Caso não encontrado' });
+
     res.json(caso);
   } catch (err) {
     res.status(500).json({ message: 'Erro interno do servidor' });
@@ -57,7 +59,7 @@ function createCaso(req, res) {
     }
 
     if (!agente_id) {
-      erros.push({ agente_id: 'Campo obrigatório' });
+      erros.push({ agente_id: 'Campo obrigatório'});
     } else if (!isUUID(agente_id)) {
       erros.push({ agente_id: 'Formato de UUID inválido' });
     } else if (!agentesRepository.findById(agente_id)) {
@@ -83,13 +85,18 @@ function createCaso(req, res) {
 
 function updateCaso(req, res) {
   try {
-    const { titulo, descricao, status, agente_id } = req.body;
-    const { id } = req.params;
+    const { id} = req.params;
+
+    if (!isUUID(id)) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
 
     const casoExistente = casosRepository.findById(id);
     if (!casoExistente) return res.status(404).json({ message: 'Caso não encontrado' });
 
+    const { titulo, descricao, status, agente_id } = req.body;
     const erros = [];
+
     if (!titulo) erros.push({ titulo: 'Campo obrigatório' });
     if (!descricao) erros.push({ descricao: 'Campo obrigatório' });
     if (!['aberto', 'solucionado'].includes(status)) {
@@ -113,7 +120,8 @@ function updateCaso(req, res) {
       agente_id
     });
 
-    res.json(atualizado);
+    casosRepository.create(novoCaso);
+    res.status(201).json(novoCaso);
   } catch (err) {
     res.status(500).json({ message: 'Erro interno do servidor' });
   }
@@ -122,6 +130,11 @@ function updateCaso(req, res) {
 function patchCaso(req, res) {
   try {
     const { id } = req.params;
+
+    if (!isUUID(id)) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+
     const atualizacao = req.body;
 
     const casoExistente = casosRepository.findById(id);
@@ -147,8 +160,14 @@ function patchCaso(req, res) {
 function deleteCaso(req, res) {
   try {
     const { id } = req.params;
+
+    if (!isUUID(id)) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+
     const removido = casosRepository.remove(id);
     if (!removido) return res.status(404).json({ message: 'Caso não encontrado' });
+
     res.status(204).send();
   } catch (err) {
     res.status(500).json({ message: 'Erro interno do servidor' });
@@ -158,6 +177,11 @@ function deleteCaso(req, res) {
 function getAgenteResponsavel(req, res) {
   try {
     const { caso_id } = req.params;
+
+    if (!isUUID(caso_id)) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+    
     const caso = casosRepository.findById(caso_id);
     if (!caso) return res.status(404).json({ message: 'Caso não encontrado' });
 
