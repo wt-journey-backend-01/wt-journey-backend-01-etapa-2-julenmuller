@@ -6,6 +6,7 @@ const { validarUUID } = require('../utils/validacoes');
 const erroUUID = validarUUID(req.params.id);
 if (erroUUID) return res.status(400).json({ erros: [erroUUID] });
 
+
 function getAllCasos(req, res) {
   try {
     let resultados = casosRepository.findAll();
